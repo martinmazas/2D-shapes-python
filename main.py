@@ -3,10 +3,6 @@
 
 import math
 from tkinter import *
-# import re
-# import sys
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 
 # Global variables
 click_number = x0 = y0 = x1 = y1 = x2 = y2 = x3 = y3 = radius = 0
@@ -62,10 +58,12 @@ def main():
         canvas.grid(row=3, column=3)
         canvas.bind('<Button-1>', my_circle)
 
+    # Draw curve activation
     def activate_curve():
         canvas.grid(row=3, column=3)
         canvas.bind('<Button-1>', my_curve)
 
+    # Clear activation
     def activate_clear():
         global canvas, img
         canvas.delete(img)
@@ -91,6 +89,7 @@ def main():
     #         my_canvas.create_line(x1, y1, x2, y2, fill='blue', width=7)
     #         click_number = 0
 
+    # Draw circle pixel
     def draw_pixel_circle(x_center, y_center, x, y):
         draw_pixel(round(x_center + x), round(y_center + y))
         draw_pixel(round(x_center - x), round(y_center + y))
@@ -101,6 +100,7 @@ def main():
         draw_pixel(round(x_center + y), round(y_center - x))
         draw_pixel(round(x_center - y), round(y_center - x))
 
+    # Draw circle
     def my_circle(event):
         global click_number
         global x0, x1, y0, y1, radius
@@ -126,14 +126,14 @@ def main():
                 x += 1
             if x == y:
                 draw_pixel_circle(x0, y0, x, y)
-            # draw_pixel_circle(x0, y0, x1, y1)
-            # canvas.create_oval(x0-radius, y0-radius, x0+radius, y0+radius, width=7)
             click_number = 0
 
     # def my_curve(xx0, yy0, xx1, yy1, xx2, yy2, xx3, yy3):
     #     canvas.create_line(xx0, yy0, xx1, yy1)
     #     canvas.create_line(xx2, yy2, xx3, yy3)
     #     canvas.create_line(xx2, yy2, xx1, yy1)
+
+    # Draw curve
     def my_curve(event):
         global click_number, x0, y0, x1, y1, x2, y2, x3, y3
         if click_number == 0:
@@ -157,19 +157,19 @@ def main():
             draw_pixel(x3, y3)
             click_number = 0
 
-    # my_window = Tk()
-
-    # my_canvas = Canvas(window, width=700, height=700, background='grey')
-
+    # Buttons
     line_btn = Button(window, text="Draw Line", command=activate_line)
     line_btn.grid(row=0, column=1)
     line_btn.place(x=150)
+
     circle_btn = Button(window, text="Draw Circle", command=activate_circle)
     circle_btn.grid(row=0, column=1)
     circle_btn.place(x=250)
+
     curve_btn = Button(window, text="Draw Curve", command=activate_curve)
     curve_btn.grid(row=0, column=1)
     curve_btn.place(x=350)
+
     clear_btn = Button(window, text="Clear", command=activate_clear)
     clear_btn.grid(row=0, column=1)
     clear_btn.place(x=450)
