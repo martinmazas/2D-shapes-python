@@ -13,7 +13,7 @@ flag_line = flag_curve = flag_circle = 0
 window = Tk()
 window.title("Ex 1")
 window.geometry("1000x1000")
-canvas = Canvas(window, width=width, height=height, bg='grey')
+canvas = Canvas(window, width=width, height=height)
 img = PhotoImage(width=width, height=height)
 canvas.create_image((width // 2, height // 2), image=img, state="normal")
 lines_number = Label(window, text="Number of lines").place(x=210)
@@ -22,6 +22,13 @@ lines_entry_number.place(x=320)
 
 
 def main():
+    # Draw a single pixel
+    def draw_pixel(x, y):
+        global img
+        if x < 0 or y < 0:
+            return
+        img.put("#000", (x, y))
+
     # Set the points for the selected shape. Each point came from the click event on the screen
     def click_event(event):
         global click_number, x0, y0, x1, y1, x2, y2, x3, y3, radius
@@ -71,34 +78,6 @@ def main():
                 my_curve(x0, y0, x1, y1, x2, y2, x3, y3)
                 click_number = 0
 
-    # Draw a single pixel
-    def draw_pixel(x, y):
-        global img
-        if x < 0 or y < 0:
-            pass
-        img.put("#000", (x, y))
-
-    # Draw a line
-    def my_line(xx0, yy0, xx1, yy1):
-        global x0, y0, x1, y1, click_number
-        x0 = xx0
-        y0 = yy0
-        x1 = xx1
-        y1 = yy1
-
-        # DDA Algorithm
-        delta_x = x0 - x1
-        delta_y = y0 - y1
-        _range = max(abs(delta_x), abs(delta_y))
-        dx = delta_x / _range
-        dy = delta_y / _range
-        x = x1
-        y = y1
-        for i in range(_range):
-            draw_pixel(round(x), round(y))
-            x += dx
-            y += dy
-
     # Draw line activation
     def activate_line():
         global flag_line, flag_curve, flag_circle
@@ -125,11 +104,32 @@ def main():
 
     # Clear activation
     def activate_clear():
-        global canvas, img, flag_curve, flag_line, flag_circle
+        global canvas, img, flag_curve, flag_line, flag_circle, click_number
         canvas.delete(img)
         img = PhotoImage(width=width, height=height)
         canvas.create_image((width // 2, height // 2), image=img, state="normal")
-        flag_line = flag_curve = flag_circle = 0
+        click_number = 0
+
+    # Draw a line
+    def my_line(xx0, yy0, xx1, yy1):
+        global x0, y0, x1, y1
+        x0 = xx0
+        y0 = yy0
+        x1 = xx1
+        y1 = yy1
+
+        # DDA Algorithm
+        delta_x = x0 - x1
+        delta_y = y0 - y1
+        _range = max(abs(delta_x), abs(delta_y))
+        dx = delta_x / _range
+        dy = delta_y / _range
+        x = x1
+        y = y1
+        for i in range(_range):
+            draw_pixel(round(x), round(y))
+            x += dx
+            y += dy
 
     # Radius calculation
     def calculate_radius(xx0, xx1, yy0, yy1):
@@ -150,7 +150,7 @@ def main():
 
     # Draw circle
     def my_circle(xx0, yy0, xx1, yy1):
-        global click_number, x0, x1, y0, y1, radius
+        global x0, y0, x1, y1, radius
         x0 = xx0
         y0 = yy0
         x1 = xx1
@@ -159,6 +159,7 @@ def main():
         x = 0
         y = radius
         p = 3 - 2 * radius
+
         # Bresenham's algorithm
         while x < y:
             draw_pixel_circle(x0, y0, x, y)
@@ -172,11 +173,6 @@ def main():
         if x == y:
             draw_pixel_circle(x0, y0, x, y)
 
-    # def my_curve(xx0, yy0, xx1, yy1, xx2, yy2, xx3, yy3):
-    #     canvas.create_line(xx0, yy0, xx1, yy1)
-    #     canvas.create_line(xx2, yy2, xx3, yy3)
-    #     canvas.create_line(xx2, yy2, xx1, yy1)
-
     # Draw curve
     def my_curve(xx0, yy0, xx1, yy1, xx2, yy2, xx3, yy3):
         global x0, y0, x1, y1, x2, y2, x3, y3
@@ -189,23 +185,29 @@ def main():
         x3 = xx3
         y3 = yy3
 
-        num_of_lines = int(lines_entry_number.get())
-        dt = 1/num_of_lines
-        ax = -x0 + 3*x1 - 3*x2 + x3
-        bx = 3*x0 - 6*x1 + 3*x2
-        cx = -3*x0 + 3*x2
+        num_of_lines = lines_entry_number.get()
+        if num_of_lines == '':
+            num_of_lines = 4
+        else:
+            num_of_lines = int(num_of_lines)
+
+        # Bezier curves
+        dt = 1 / num_of_lines
+        ax = -x0 + 3 * x1 - 3 * x2 + x3
+        bx = 3 * x0 - 6 * x1 + 3 * x2
+        cx = -3 * x0 + 3 * x1
         dx = x0
 
         ay = -y0 + 3 * y1 - 3 * y2 + y3
         by = 3 * y0 - 6 * y1 + 3 * y2
-        cy = -3 * y0 + 3 * y2
+        cy = -3 * y0 + 3 * y1
         dy = y0
 
         f_x, f_y = x0, y0
         t = dt
         while t < 1.0:
-            xt = int(ax*t*t*t + bx*t*t + cx*t + dx)
-            yt = int(ay*t*t*t + by*t*t + cy*t + dy)
+            xt = int(ax * t * t * t + bx * t * t + cx * t + dx)
+            yt = int(ay * t * t * t + by * t * t + cy * t + dy)
             my_line(f_x, f_y, xt, yt)
             f_x, f_y = xt, yt
             t += dt
