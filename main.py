@@ -1,22 +1,20 @@
 # Ex 1
 # Niv Swisa 307929257 and Martin Mazas 329834857
+
 import math
 from tkinter import *
-import re
-import sys
+# import re
+# import sys
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-click_number = 0
-x0 = 0
-y0 = 0
-x1 = 0
-y1 = 0
-radius = 0
-height = 700
-width = 700
+
+# Global variables
+click_number = x0 = y0 = x1 = y1 = radius = 0
+height = width = 700
 
 window = Tk()
 window.title("Ex 1")
+window.geometry("700x700")
 canvas = Canvas(window, width=width, height=height, bg='grey')
 img = PhotoImage(width=width, height=height)
 canvas.create_image((width // 2, height // 2), image=img, state="normal")
@@ -30,6 +28,7 @@ def main():
             pass
         img.put("white", (x, y))
 
+    # Draw a line
     def my_line(event):
         # DDA algorithm
         global x0, y0, x1, y1, click_number
@@ -53,14 +52,17 @@ def main():
                 y += dy
             click_number = 0
 
+    # Draw line activation
     def activate_line():
         canvas.grid(row=3, column=3)
         canvas.bind('<Button-1>', my_line)
 
+    # Draw circle activation
     def activate_circle():
         canvas.grid(row=3, column=3)
         canvas.bind('<Button-1>', my_circle)
 
+    # Radius calculation
     def calculate_radius(xx0, xx1, yy0, yy1):
         x_minus_x = pow((xx0-xx1), 2)
         y_minus_y = pow((yy0-yy1), 2)
@@ -79,6 +81,16 @@ def main():
     #         my_canvas.create_line(x1, y1, x2, y2, fill='blue', width=7)
     #         click_number = 0
 
+    def draw_pixel_circle(x_center, y_center, x, y):
+        draw_pixel(round(x_center + x), round(y_center + y))
+        draw_pixel(round(x_center - x), round(y_center + y))
+        draw_pixel(round(x_center + x), round(y_center - y))
+        draw_pixel(round(x_center - x), round(y_center - y))
+        draw_pixel(round(x_center + y), round(y_center + x))
+        draw_pixel(round(x_center - y), round(y_center + x))
+        draw_pixel(round(x_center + y), round(y_center - x))
+        draw_pixel(round(x_center - y), round(y_center - x))
+
     def my_circle(event):
         global click_number
         global x0, x1, y0, y1, radius
@@ -90,11 +102,26 @@ def main():
             x1 = event.x
             y1 = event.y
             radius = calculate_radius(x0, x1, y0, y1)
-            canvas.create_oval(x0-radius, y0-radius, x0+radius, y0+radius, width=7)
+            x = 0
+            y = radius
+            p = 3 - 2 * radius
+            while x < y:
+                draw_pixel_circle(x0, y0, x, y)
+                if p < 0:
+                    p = p + 4 * x + 6
+                else:
+                    draw_pixel_circle(x0, y0, x+1, y)
+                    p = p + 4 * (x-y) + 10
+                    y -= 1
+                x += 1
+            if x == y:
+                draw_pixel_circle(x0, y0, x, y)
+            # draw_pixel_circle(x0, y0, x1, y1)
+            # canvas.create_oval(x0-radius, y0-radius, x0+radius, y0+radius, width=7)
             click_number = 0
 
     # my_window = Tk()
-    window.geometry("700x700")
+
     # my_canvas = Canvas(window, width=700, height=700, background='grey')
 
     linebtn = Button(window, text="Draw Line", command=activate_line)
