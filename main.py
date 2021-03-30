@@ -6,16 +6,19 @@ from tkinter import *
 
 # Global variables
 click_number = x0 = y0 = x1 = y1 = x2 = y2 = x3 = y3 = radius = 0
-height = width = 700
+height = width = 1000
 flag_line = flag_curve = flag_circle = 0
 
 # Graphic window global variables
 window = Tk()
 window.title("Ex 1")
-window.geometry("700x700")
+window.geometry("1000x1000")
 canvas = Canvas(window, width=width, height=height, bg='grey')
 img = PhotoImage(width=width, height=height)
 canvas.create_image((width // 2, height // 2), image=img, state="normal")
+lines_number = Label(window, text="Number of lines").place(x=210)
+lines_entry_number = Entry(window)
+lines_entry_number.place(x=320)
 
 
 def main():
@@ -186,28 +189,43 @@ def main():
         x3 = xx3
         y3 = yy3
 
-        my_line(x0, y0, x1, y1)
-        my_line(x2, y2, x3, y3)
-        my_line(x1, y1, x2, y2)
+        num_of_lines = int(lines_entry_number.get())
+        dt = 1/num_of_lines
+        ax = -x0 + 3*x1 - 3*x2 + x3
+        bx = 3*x0 - 6*x1 + 3*x2
+        cx = -3*x0 + 3*x2
+        dx = x0
 
+        ay = -y0 + 3 * y1 - 3 * y2 + y3
+        by = 3 * y0 - 6 * y1 + 3 * y2
+        cy = -3 * y0 + 3 * y2
+        dy = y0
 
+        f_x, f_y = x0, y0
+        t = dt
+        while t < 1.0:
+            xt = int(ax*t*t*t + bx*t*t + cx*t + dx)
+            yt = int(ay*t*t*t + by*t*t + cy*t + dy)
+            my_line(f_x, f_y, xt, yt)
+            f_x, f_y = xt, yt
+            t += dt
+        my_line(xt, yt, x3, y3)
 
     # Buttons
-    line_btn = Button(window, text="Draw Line", command=activate_line)
+    line_btn = Button(window, text="Line", command=activate_line)
     line_btn.grid(row=0, column=1)
-    line_btn.place(x=150)
 
-    circle_btn = Button(window, text="Draw Circle", command=activate_circle)
+    circle_btn = Button(window, text="Circle", command=activate_circle)
     circle_btn.grid(row=0, column=1)
-    circle_btn.place(x=250)
+    circle_btn.place(x=70)
 
-    curve_btn = Button(window, text="Draw Curve", command=activate_curve)
+    curve_btn = Button(window, text="Curve", command=activate_curve)
     curve_btn.grid(row=0, column=1)
-    curve_btn.place(x=350)
+    curve_btn.place(x=140)
 
     clear_btn = Button(window, text="Clear", command=activate_clear)
     clear_btn.grid(row=0, column=1)
-    clear_btn.place(x=450)
+    clear_btn.place(x=550)
 
     window.mainloop()
 
